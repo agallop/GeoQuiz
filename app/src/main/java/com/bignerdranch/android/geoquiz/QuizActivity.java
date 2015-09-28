@@ -40,17 +40,20 @@ public class QuizActivity extends ActionBarActivity {
         int question = mQuestonBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(question);
     }
-
+    
+    //determines if the user was correct or not
     private void checkAnswer(boolean userPressedTrue) {
         boolean isAnswerTrue = mQuestonBank[mCurrentIndex].isAnswerTrue();
-        int messageResId = 0;
-
+        int messageResId = 0; 
+       
+        //determines which message to show in Toast
         if(userPressedTrue == isAnswerTrue){
             messageResId = R.string.correct_toast;
         } else {
             messageResId = R.string.incorrect_toast;
         }
 
+        //shows Toastwith message
         Toast.makeText(QuizActivity.this, messageResId, Toast.LENGTH_SHORT).show();
     }
 
@@ -60,10 +63,12 @@ public class QuizActivity extends ActionBarActivity {
         Log.d(TAG, "onCreate (Bundle) called");
         setContentView(R.layout.activity_quiz);
 
+        //Retrieves date from savedInstanceState, if any
         if(savedInstanceState != null){
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
         }
 
+        //finds view for mQuestionTextView and set it's onClickListener
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
         mQuestionTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +79,7 @@ public class QuizActivity extends ActionBarActivity {
         });
         updateQuestion();
 
+        //finds view for mTrueButton and set it's onClickListener
         mTrueButton = (Button) findViewById(R.id.true_button);
         mTrueButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +88,7 @@ public class QuizActivity extends ActionBarActivity {
             }
         });
 
+        //finds view for mFalseButton and set it's onClickListener
         mFalseButton = (Button) findViewById(R.id.false_button);
         mFalseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +97,7 @@ public class QuizActivity extends ActionBarActivity {
             }
         });
 
+        //finds view for mNextButton and set it's onClickListener
         mNextButton = (ImageButton) findViewById(R.id.next_button);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,6 +107,7 @@ public class QuizActivity extends ActionBarActivity {
             }
         });
 
+        //finds view for mPrevButton and set it's onClickListener
         mPrevButton = (ImageButton) findViewById(R.id.prev_button);
         mPrevButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +118,7 @@ public class QuizActivity extends ActionBarActivity {
             }
         });
 
+        //finds view for mCheatButton and set it's onClickListener
         mCheatButton = (Button) findViewById(R.id.cheat_button);
         mCheatButton.setOnClickListener(new View.OnClickListener() {
             @Override
