@@ -1,5 +1,6 @@
 package com.bignerdranch.android.geoquiz;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ public class QuizActivity extends ActionBarActivity {
 
     private static final String TAG = "QuizActivity";
     private static final String KEY_INDEX = "index";
+    private static final int REQUEST_CODE_CHEAT = 0;
 
     private Button mTrueButton;
     private Button mFalseButton;
@@ -30,9 +32,9 @@ public class QuizActivity extends ActionBarActivity {
             new Question(R.string.question_africa, false),
             new Question(R.string.question_americas, true),
             new Question(R.string.question_asia, true)
-
     };
     private int mCurrentIndex = 0;
+    private boolean mIsCheater;
 
 
 
@@ -43,14 +45,19 @@ public class QuizActivity extends ActionBarActivity {
     
     //determines if the user was correct or not
     private void checkAnswer(boolean userPressedTrue) {
+
         boolean isAnswerTrue = mQuestonBank[mCurrentIndex].isAnswerTrue();
         int messageResId = 0; 
        
         //determines which message to show in Toast
-        if(userPressedTrue == isAnswerTrue){
-            messageResId = R.string.correct_toast;
+        if(mIsCheater){
+            messageResId = R.string.judgement_toast;
         } else {
-            messageResId = R.string.incorrect_toast;
+            if (userPressedTrue == isAnswerTrue) {
+                messageResId = R.string.correct_toast;
+            } else {
+                messageResId = R.string.incorrect_toast;
+            }
         }
 
         //shows Toastwith message
@@ -103,6 +110,7 @@ public class QuizActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestonBank.length;
+                mIsCheater = false;
                 updateQuestion();
             }
         });
@@ -114,6 +122,7 @@ public class QuizActivity extends ActionBarActivity {
             public void onClick(View v) {
                 mCurrentIndex = (mCurrentIndex + mQuestonBank.length - 1)
                         % mQuestonBank.length;
+                mIsCheater = false;
                 updateQuestion();
             }
         });
@@ -123,10 +132,24 @@ public class QuizActivity extends ActionBarActivity {
         mCheatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(QuizActivity.this, CheatActivity.class);
-                startActivity(i);
+                boolean answerIsTrue = mQuestonBank[mCurrentIndex].isAnswerTrue();
+                Intent i = CheatActivity.newIntent(QuizActivity.this,answerIsTrue);
+                startActivityForResult(i, REQUEST_CODE_CHEAT);
             }
         });
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(resultCode != Activity.RESULT_OK){
+            return;
+        }
+
+        if(requestCode == REQUEST_CODE_CHEAT){
+            if(data == null){
+                return;
+            }
+            mIsCheater = CheatActivity.wasAnswerShown(data);
+        }
     }
 
     @Override
