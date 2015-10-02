@@ -17,9 +17,14 @@ import android.widget.Toast;
 public class QuizActivity extends ActionBarActivity {
 
     private static final String TAG = "QuizActivity";
+
+    //key constants
     private static final String KEY_INDEX = "index";
     private static final int REQUEST_CODE_CHEAT = 0;
+    private static final String KEY_CHEATS = "cheat";
 
+
+    //member variables
     private Button mTrueButton;
     private Button mFalseButton;
     private ImageButton mNextButton;
@@ -33,8 +38,9 @@ public class QuizActivity extends ActionBarActivity {
             new Question(R.string.question_americas, true),
             new Question(R.string.question_asia, true)
     };
+    private boolean mIsCheater[] = new boolean[5];
     private int mCurrentIndex = 0;
-    private boolean mIsCheater;
+
 
 
 
@@ -50,8 +56,11 @@ public class QuizActivity extends ActionBarActivity {
         int messageResId = 0; 
        
         //determines which message to show in Toast
-        if(mIsCheater){
+        if(mIsCheater[mCurrentIndex]){
+            if(userPressedTrue == isAnswerTrue)
             messageResId = R.string.judgement_toast;
+            else
+                messageResId = R.string.bad_cheater_toast;
         } else {
             if (userPressedTrue == isAnswerTrue) {
                 messageResId = R.string.correct_toast;
@@ -73,6 +82,9 @@ public class QuizActivity extends ActionBarActivity {
         //Retrieves date from savedInstanceState, if any
         if(savedInstanceState != null){
             mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+            for(int i = 0; i < mIsCheater.length; i++){
+                mIsCheater[i] = savedInstanceState.getBoolean(KEY_CHEATS + i);
+            }
         }
 
         //finds view for mQuestionTextView and set it's onClickListener
@@ -110,7 +122,6 @@ public class QuizActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 mCurrentIndex = (mCurrentIndex + 1) % mQuestonBank.length;
-                mIsCheater = false;
                 updateQuestion();
             }
         });
@@ -122,7 +133,6 @@ public class QuizActivity extends ActionBarActivity {
             public void onClick(View v) {
                 mCurrentIndex = (mCurrentIndex + mQuestonBank.length - 1)
                         % mQuestonBank.length;
-                mIsCheater = false;
                 updateQuestion();
             }
         });
@@ -138,6 +148,10 @@ public class QuizActivity extends ActionBarActivity {
             }
         });
     }
+
+    private void inFlateViews(){
+
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(resultCode != Activity.RESULT_OK){
@@ -148,15 +162,18 @@ public class QuizActivity extends ActionBarActivity {
             if(data == null){
                 return;
             }
-            mIsCheater = CheatActivity.wasAnswerShown(data);
+            mIsCheater[mCurrentIndex] |= CheatActivity.wasAnswerShown(data);
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
-        Log.i(TAG, "onSaveInstanceState");
+        Log.i(TAG, "onSaveInstanceState called");
         savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
+        for(int i = 0; i < mIsCheater.length; i++){
+            savedInstanceState.putBoolean(KEY_CHEATS + i, mIsCheater[i]);
+        }
     }
 
     @Override

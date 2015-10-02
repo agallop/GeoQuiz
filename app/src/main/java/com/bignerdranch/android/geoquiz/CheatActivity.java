@@ -20,6 +20,7 @@ public class CheatActivity extends ActionBarActivity {
     private boolean mAnswerIsTrue;
     private TextView mAnswerTextView;
     private Button mShowAnswer;
+    private boolean mIsAnswerShown;
 
 
     public static Intent newIntent(Context packageContext, boolean answerIsTrue){
@@ -37,6 +38,13 @@ public class CheatActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cheat);
+
+        mIsAnswerShown = false;
+        if (savedInstanceState != null){
+            mIsAnswerShown = savedInstanceState.getBoolean(EXTRA_ANSWER_SHOWN);
+            if(mIsAnswerShown)
+                setAnswerShownResult();
+        }
         mAnswerIsTrue = getIntent().getBooleanExtra(EXTRA_ANSWER_IS_TRUE, false);
 
         mAnswerTextView = (TextView) findViewById(R.id.answer_text_view);
@@ -50,14 +58,15 @@ public class CheatActivity extends ActionBarActivity {
                 } else {
                     mAnswerTextView.setText(R.string.false_button);
                 }
-                setAnswerShownResult(true);
+                mIsAnswerShown = true;
+                setAnswerShownResult();
             }
         });
     }
 
-    private void setAnswerShownResult(boolean isAnswerShown){
+    private void setAnswerShownResult(){
         Intent data = new Intent();
-        data.putExtra(EXTRA_ANSWER_SHOWN, isAnswerShown);
+        data.putExtra(EXTRA_ANSWER_SHOWN, mIsAnswerShown);
         setResult(RESULT_OK, data);
     }
 
@@ -68,6 +77,11 @@ public class CheatActivity extends ActionBarActivity {
         return true;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        savedInstanceState.putBoolean(EXTRA_ANSWER_SHOWN, mIsAnswerShown);
+
+    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
